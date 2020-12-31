@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Available variables:
+#  SR_PATH          - The absolute path to all the services
+#  SR_HANDLER_NAME  - The handler type (based on the handler filename)
+#  SR_HANDLER_FUNC  - The handler function
+#  SR_SERVICE_NAME  - The name of the service
+#  SR_SERVICE_PATH  - The absolute path to the service
+#  SR_ACTION        - The action (start|stop)
+
+function srv_shell() {
+  local path="$SR_SERVICE_PATH/$SR_ACTION"
+  if [[ -f $path ]]; then
+    echo "bash $path"
+  elif [[ -f "$path.sh" ]]; then
+    echo "bash $path.sh"
+  fi
+}
+
+export -f srv_shell
