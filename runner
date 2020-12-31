@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+if [[ "$SR_PATH" == "" ]]; then
+  export SR_PATH="$(realpath $(dirname $0))/services"
+fi
+
+SR_ACTION=$1
+SR_SERVICE_NAME=$2
+SR_SERVICE_PATH="$SR_PATH/$SR_SERVICE_NAME"
+
+SR_HANDLERS=($(ls -d handlers/*))
+
+if [[ "$SR_ACTION" == "" ]]; then
+  echo -e "Missing action.\nExpected start or stop"
+  exit 1
+fi
+
+if [[ "$SR_ACTION" != "start" ]] && [[ "$SR_ACTION" != "stop" ]]; then
+  echo -e "Invalid action: $SR_ACTION.\nExpected start or stop"
+  exit 1
+fi
+
+if [[ "$SR_SERVICE_NAME" == "" ]]; then
+  echo "Missing service name"
+  exit 1
+fi
+
+if [[ ! -d "$SR_SERVICE_PATH" ]]; then
+  echo "Service not found"
+  exit 1
+fi
+
+for handler in "${SR_HANDLERS[@]}"
+do
+  source $handler
+
+  SR_HANDLER_NAME=$(basename $handler)
+  SR_HANDLER_FUNC="srv_$SR_HANDLER_NAME"
+
+  if [[ "$(type -t $SR_HANDLER_FUNC)" != "" ]]; then
+    command="$($SR_HANDLER_FUNC)"
+    if [[ "$command" != "" ]]; then 
+      $command
+      exit 0
+    fi
+  fi
+done
+
+echo "No handler found for $SR_SERVICE_NAME"
+exit 1
