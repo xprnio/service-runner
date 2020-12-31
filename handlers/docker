@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function srv_docker() {
+  local path="$SR_SERVICE_PATH/docker-compose.yml"
+
+  if [[ -f $path ]]; then
+    case "$SR_ACTION" in
+      "start") echo "docker-compose -f $path up -d";;
+      "stop") echo "docker-compose -f $path down";;
+    esac
+  fi
+}
+
+export -f srv_docker
